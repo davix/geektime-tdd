@@ -1,13 +1,29 @@
 package args
 
-type Args []string
+type Args struct {
+	args []string
+	res  map[string]any
+}
+
+func New(args ...string) Args {
+	return Args{
+		args: args,
+		res:  make(map[string]any),
+	}
+}
 
 func (a Args) Parse() {
-
+	for _, arg := range a.args {
+		if result, ok := a.res[arg]; ok {
+			*(result.(*bool)) = true
+		}
+	}
 }
 
 func (a Args) Bool(name string) *bool {
-	return nil
+	var result bool
+	a.res["-"+name] = &result
+	return &result
 }
 
 func (a Args) Int(name string) *int {
