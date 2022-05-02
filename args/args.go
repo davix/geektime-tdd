@@ -1,5 +1,7 @@
 package args
 
+import "strconv"
+
 type Args struct {
 	args []string
 	res  map[string]any
@@ -13,9 +15,20 @@ func New(args ...string) Args {
 }
 
 func (a Args) Parse() {
-	for _, arg := range a.args {
+	for i, arg := range a.args {
 		if result, ok := a.res[arg]; ok {
-			*(result.(*bool)) = true
+			switch v := result.(type) {
+			case *bool:
+				*v = true
+			case *int:
+				value, err := strconv.ParseInt(a.args[i+1], 10, 32)
+				if err != nil {
+					continue
+				}
+				*v = int(value)
+			case *string:
+				*v = a.args[i+1]
+			}
 		}
 	}
 }
@@ -27,9 +40,13 @@ func (a Args) Bool(name string) *bool {
 }
 
 func (a Args) Int(name string) *int {
-	return nil
+	var result int
+	a.res["-"+name] = &result
+	return &result
 }
 
 func (a Args) String(name string) *string {
-	return nil
+	var result string
+	a.res["-"+name] = &result
+	return &result
 }

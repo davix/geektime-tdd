@@ -19,6 +19,18 @@ func TestArgs(t *testing.T) {
 		args.Parse()
 		assert.False(t, *logging)
 	})
+	t.Run("int", func(t *testing.T) {
+		args := New("-p", "8080")
+		port := args.Int("p")
+		args.Parse()
+		assert.Equal(t, 8080, *port)
+	})
+	t.Run("string", func(t *testing.T) {
+		args := New("-d", "/usr/logs")
+		dir := args.String("d")
+		args.Parse()
+		assert.Equal(t, "/usr/logs", *dir)
+	})
 	//t.Run("multi-option", func(t *testing.T) {
 	//	args := Args{"-l", "-p", "8080", "-d", "/usr/logs"}
 	//	logging := args.Bool("l")
