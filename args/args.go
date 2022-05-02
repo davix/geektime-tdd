@@ -26,36 +26,49 @@ func New(args ...string) Args {
 func (a Args) Parse() error {
 	for i, arg := range a.args {
 		if result, ok := a.res[arg]; ok {
+			values := valuesFromFollowing(a.args[i+1:])
+
 			switch v := result.(type) {
 			case *bool:
-				if i != len(a.args)-1 && !strings.HasPrefix(a.args[i+1], "-") {
+				if len(values) > 0 {
 					return ErrTooManyArgs
 				}
 				*v = true
 			case *int:
-				if i == len(a.args)-1 || strings.HasPrefix(a.args[i+1], "-") {
+				if len(values) < 1 {
 					return ErrNoArg
 				}
-				if i < len(a.args)-2 && !strings.HasPrefix(a.args[i+2], "-") {
+				if len(values) > 1 {
 					return ErrTooManyArgs
 				}
-				value, err := strconv.Atoi(a.args[i+1])
+				value, err := strconv.Atoi(values[0])
 				if err != nil {
 					continue
 				}
 				*v = value
 			case *string:
-				if i == len(a.args)-1 || strings.HasPrefix(a.args[i+1], "-") {
+				if len(values) < 1 {
 					return ErrNoArg
 				}
-				if i < len(a.args)-2 && !strings.HasPrefix(a.args[i+2], "-") {
+				if len(values) > 1 {
 					return ErrTooManyArgs
 				}
-				*v = a.args[i+1]
+				*v = values[0]
 			}
 		}
 	}
 	return nil
+}
+
+func valuesFromFollowing(args []string) []string {
+	var values []string
+	for _, a := range args {
+		if strings.HasPrefix(a, "-") {
+			break
+		}
+		values = append(values, a)
+	}
+	return values
 }
 
 func (a Args) Bool(name string) *bool {

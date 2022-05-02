@@ -17,11 +17,6 @@ func TestArgs(t *testing.T) {
 		assert.Equal(t, 8080, *port)
 		assert.Equal(t, "/usr/logs", *dir)
 	})
-	// sad path:
-	// TODO: - string -d/ -d /usr/logs /usr/vars
-	// default value:
-	// TODO: - string ""
-
 }
 
 func TestArgsBool(t *testing.T) {
