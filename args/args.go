@@ -14,7 +14,7 @@ func New(args ...string) Args {
 	}
 }
 
-func (a Args) Parse() {
+func (a Args) Parse() error {
 	for i, arg := range a.args {
 		if result, ok := a.res[arg]; ok {
 			switch v := result.(type) {
@@ -31,6 +31,7 @@ func (a Args) Parse() {
 			}
 		}
 	}
+	return nil
 }
 
 func (a Args) Bool(name string) *bool {
