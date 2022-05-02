@@ -45,6 +45,12 @@ func (a Args) Parse() error {
 				}
 				*v = value
 			case *string:
+				if i == len(a.args)-1 || strings.HasPrefix(a.args[i+1], "-") {
+					return ErrNoArg
+				}
+				if i < len(a.args)-2 && !strings.HasPrefix(a.args[i+2], "-") {
+					return ErrTooManyArgs
+				}
 				*v = a.args[i+1]
 			}
 		}

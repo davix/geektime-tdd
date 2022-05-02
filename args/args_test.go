@@ -7,12 +7,6 @@ import (
 )
 
 func TestArgs(t *testing.T) {
-	t.Run("string", func(t *testing.T) {
-		args := New("-d", "/usr/logs")
-		dir := args.String("d")
-		args.Parse()
-		assert.Equal(t, "/usr/logs", *dir)
-	})
 	t.Run("multi-option", func(t *testing.T) {
 		args := New("-l", "-p", "8080", "-d", "/usr/logs")
 		logging := args.Bool("l")
@@ -82,6 +76,34 @@ func TestArgsInt(t *testing.T) {
 				return
 			}
 			assert.Equal(t, tt.value, *port)
+		})
+	}
+}
+
+func TestArgsString(t *testing.T) {
+	tests := []struct {
+		name  string
+		args  []string
+		value string
+		err   error
+	}{
+		{"string", []string{"-d", "/usr/logs"}, "/usr/logs", nil},
+		{"string default ''", []string{}, "", nil},
+		{"string no arg", []string{"-d"}, "", ErrNoArg},
+		{"string too many arg", []string{"-d", "/usr/logs", "/usr/vars"}, "", ErrTooManyArgs},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			args := New(tt.args...)
+			dir := args.String("d")
+
+			err := args.Parse()
+
+			assert.Equal(t, tt.err, err)
+			if err != nil {
+				return
+			}
+			assert.Equal(t, tt.value, *dir)
 		})
 	}
 }
