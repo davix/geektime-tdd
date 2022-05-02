@@ -30,11 +30,9 @@ func TestArgs(t *testing.T) {
 		assert.Equal(t, "/usr/logs", *dir)
 	})
 	// sad path:
-	// TODO: -bool -l t / -l t f
 	// TODO: - int -p/ -p 8080 8081
 	// TODO: - string -d/ -d /usr/logs /usr/vars
 	// default value:
-	// TODO: - bool : false
 	// TODO: -int :0
 	// TODO: - string ""
 
@@ -48,14 +46,21 @@ func TestArgsBool(t *testing.T) {
 		err   error
 	}{
 		{"bool", []string{"-l"}, true, nil},
-		{"no bool", []string{}, false, nil},
+		{"bool default false", []string{}, false, nil},
+		{"bool no extra arg", []string{"-l", "t"}, false, ErrTooManyArgs},
+		{"bool no extra 2 arg", []string{"-l", "t", "f"}, false, ErrTooManyArgs},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			args := New(tt.args...)
 			logging := args.Bool("l")
+
 			err := args.Parse()
+
 			assert.Equal(t, tt.err, err)
+			if err != nil {
+				return
+			}
 			assert.Equal(t, tt.value, *logging)
 		})
 

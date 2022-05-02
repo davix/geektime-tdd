@@ -1,6 +1,14 @@
 package args
 
-import "strconv"
+import (
+	"errors"
+	"strconv"
+	"strings"
+)
+
+var (
+	ErrTooManyArgs = errors.New("too many arguments")
+)
 
 type Args struct {
 	args []string
@@ -19,6 +27,9 @@ func (a Args) Parse() error {
 		if result, ok := a.res[arg]; ok {
 			switch v := result.(type) {
 			case *bool:
+				if i != len(a.args)-1 && !strings.HasPrefix(a.args[i+1], "-") {
+					return ErrTooManyArgs
+				}
 				*v = true
 			case *int:
 				value, err := strconv.Atoi(a.args[i+1])
