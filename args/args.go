@@ -8,6 +8,7 @@ import (
 
 var (
 	ErrTooManyArgs = errors.New("too many arguments")
+	ErrNoArg       = errors.New("no argument")
 )
 
 type Args struct {
@@ -32,6 +33,12 @@ func (a Args) Parse() error {
 				}
 				*v = true
 			case *int:
+				if i == len(a.args)-1 || strings.HasPrefix(a.args[i+1], "-") {
+					return ErrNoArg
+				}
+				if i < len(a.args)-2 && !strings.HasPrefix(a.args[i+2], "-") {
+					return ErrTooManyArgs
+				}
 				value, err := strconv.Atoi(a.args[i+1])
 				if err != nil {
 					continue

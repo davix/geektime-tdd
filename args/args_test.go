@@ -7,12 +7,6 @@ import (
 )
 
 func TestArgs(t *testing.T) {
-	t.Run("int", func(t *testing.T) {
-		args := New("-p", "8080")
-		port := args.Int("p")
-		args.Parse()
-		assert.Equal(t, 8080, *port)
-	})
 	t.Run("string", func(t *testing.T) {
 		args := New("-d", "/usr/logs")
 		dir := args.String("d")
@@ -30,10 +24,8 @@ func TestArgs(t *testing.T) {
 		assert.Equal(t, "/usr/logs", *dir)
 	})
 	// sad path:
-	// TODO: - int -p/ -p 8080 8081
 	// TODO: - string -d/ -d /usr/logs /usr/vars
 	// default value:
-	// TODO: -int :0
 	// TODO: - string ""
 
 }
@@ -63,6 +55,33 @@ func TestArgsBool(t *testing.T) {
 			}
 			assert.Equal(t, tt.value, *logging)
 		})
+	}
+}
 
+func TestArgsInt(t *testing.T) {
+	tests := []struct {
+		name  string
+		args  []string
+		value int
+		err   error
+	}{
+		{"int", []string{"-p", "8080"}, 8080, nil},
+		{"int default 0", []string{}, 0, nil},
+		{"int no arg", []string{"-p"}, 0, ErrNoArg},
+		{"int too many arg", []string{"-p", "8080", "8081"}, 0, ErrTooManyArgs},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			args := New(tt.args...)
+			port := args.Int("p")
+
+			err := args.Parse()
+
+			assert.Equal(t, tt.err, err)
+			if err != nil {
+				return
+			}
+			assert.Equal(t, tt.value, *port)
+		})
 	}
 }
