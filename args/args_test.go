@@ -102,3 +102,29 @@ func TestArgsString(t *testing.T) {
 		})
 	}
 }
+
+func TestArgsStringList(t *testing.T) {
+	tests := []struct {
+		name  string
+		args  []string
+		value []string
+		err   error
+	}{
+		{"string list", []string{"-g", "this", "is"}, []string{"this", "is"}, nil},
+		{"string list default", []string{}, []string{}, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			args := New(tt.args...)
+			li := args.StringList("g")
+
+			err := args.Parse()
+
+			assert.Equal(t, tt.err, err)
+			if err != nil {
+				return
+			}
+			assert.Equal(t, tt.value, *li)
+		})
+	}
+}

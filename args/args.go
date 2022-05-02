@@ -54,6 +54,8 @@ func (a Args) Parse() error {
 					return ErrTooManyArgs
 				}
 				*v = values[0]
+			case *[]string:
+				*v = append(*v, values...)
 			}
 		}
 	}
@@ -85,6 +87,12 @@ func (a Args) Int(name string) *int {
 
 func (a Args) String(name string) *string {
 	var result string
+	a.res["-"+name] = &result
+	return &result
+}
+
+func (a Args) StringList(name string) *[]string {
+	result := make([]string, 0)
 	a.res["-"+name] = &result
 	return &result
 }
