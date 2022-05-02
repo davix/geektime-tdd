@@ -21,11 +21,11 @@ func (a Args) Parse() {
 			case *bool:
 				*v = true
 			case *int:
-				value, err := strconv.ParseInt(a.args[i+1], 10, 32)
+				value, err := strconv.Atoi(a.args[i+1])
 				if err != nil {
 					continue
 				}
-				*v = int(value)
+				*v = value
 			case *string:
 				*v = a.args[i+1]
 			}
