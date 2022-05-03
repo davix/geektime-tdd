@@ -2,13 +2,14 @@ package args
 
 import (
 	"errors"
+	"regexp"
 	"strconv"
-	"strings"
 )
 
 var (
 	ErrTooManyArgs = errors.New("too many arguments")
 	ErrNoArg       = errors.New("no argument")
+	ErrInvalidArg  = errors.New("invalid argument")
 )
 
 type Args struct {
@@ -55,7 +56,15 @@ func (a Args) Parse() error {
 				}
 				*v = values[0]
 			case *[]string:
-				*v = append(*v, values...)
+				*v = values
+			case *[]int:
+				for _, val := range values {
+					value, err := strconv.Atoi(val)
+					if err != nil {
+						return ErrInvalidArg
+					}
+					*v = append(*v, value)
+				}
 			}
 		}
 	}
@@ -65,7 +74,7 @@ func (a Args) Parse() error {
 func valuesFromFollowing(args []string) []string {
 	var values []string
 	for _, a := range args {
-		if strings.HasPrefix(a, "-") {
+		if regexp.MustCompile("^-[a-zA-Z]$").MatchString(a) {
 			break
 		}
 		values = append(values, a)
@@ -93,6 +102,12 @@ func (a Args) String(name string) *string {
 
 func (a Args) StringList(name string) *[]string {
 	result := make([]string, 0)
+	a.res["-"+name] = &result
+	return &result
+}
+
+func (a Args) IntList(name string) *[]int {
+	result := make([]int, 0)
 	a.res["-"+name] = &result
 	return &result
 }

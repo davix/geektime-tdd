@@ -128,3 +128,31 @@ func TestArgsStringList(t *testing.T) {
 		})
 	}
 }
+
+func TestArgsIntList(t *testing.T) {
+	tests := []struct {
+		name  string
+		args  []string
+		value []int
+		err   error
+	}{
+		{"int list", []string{"-i", "1", "2", "-3", "5"}, []int{1, 2, -3, 5}, nil},
+		{"int list default", []string{}, []int{}, nil},
+		{"int list invalid", []string{"-i", "a"}, []int{}, ErrInvalidArg},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			args := New(tt.args...)
+			// use -i instead of the confusing -d flag
+			li := args.IntList("i")
+
+			err := args.Parse()
+
+			assert.Equal(t, tt.err, err)
+			if err != nil {
+				return
+			}
+			assert.Equal(t, tt.value, *li)
+		})
+	}
+}
